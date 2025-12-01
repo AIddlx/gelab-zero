@@ -497,5 +497,9 @@ You can contact us and communicate with us by joining our WeChat group:
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=stepfun-ai/gelab-zero&type=Date)](https://star-history.com/#stepfun-ai/gelab-zero&Date)
+<div align="center">
+  <a href="https://star-history.com/#stepfun-ai/gelab-zero&Date">
+    <img src="https://api.star-history.com/svg?repos=stepfun-ai/gelab-zero&type=Date" alt="Star History Chart" width="600">
+  </a>
+</div>
 
