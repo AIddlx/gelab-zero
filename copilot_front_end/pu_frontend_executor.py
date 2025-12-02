@@ -21,26 +21,27 @@ def parser0729_to_frontend_action(parser_action):
 
 
 def uiTars_to_frontend_action(ui_action):
+    # 初始化为 None 或默认值
+    action_type = None
+
     if "action" in ui_action:
         action_type = ui_action["action"]
     elif "action_type" in ui_action:
         action_type = ui_action["action_type"]
+    else:
+        # 关键：兜底处理！
+        raise ValueError(f"ui_action must contain 'action' or 'action_type'. Got keys: {list(ui_action.keys())}")
 
+    # 现在 action_type 一定有值
     ui_action['action_type'] = action_type
 
     if action_type == "WAIT":
         if "value" in ui_action:
             seconds = float(ui_action["value"])
             ui_action["seconds"] = seconds
-            # del ui_action["value"]
     elif action_type == "LONGPRESS":
         duration = ui_action.get("duration", ui_action.get("value", 1.5))
         ui_action["duration"] = float(duration)
-
-    # if action_type == "TYPE":
-    #     value = ui_action.get("value", "")
-    #     value = value.replace(" ","_").replace("(", "\(").replace(")", "\)").replace("&", "\&").replace("|", "\|").replace(";", "\;").replace("$", "\$")
-    #     ui_action["value"] = value
 
     return ui_action
 
