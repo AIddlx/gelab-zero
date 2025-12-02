@@ -68,7 +68,7 @@ if __name__ == "__main__":
     # task = "打开微信，给柏茗，发helloworld"
     # task = "打开 给到 app，在主页，下滑寻找，员工权益-奋斗食代，帮我领劵。如果不能领取就退出。"
     # task = "open wechat to send a message 'helloworld' to 'TKJ'"
-    task = "帮我用爱奇艺播放捕风捉影"
+    task = "去淘宝帮我买本书"
 
     tmp_rollout_config = local_model_config
     l2_server = LocalServer(tmp_server_config)
@@ -77,10 +77,17 @@ if __name__ == "__main__":
     wrap_automate_step_with_timing(l2_server)
     # 执行任务并计总时间
     total_start = time.time()
+    # Disable auto reply
     evaluate_task_on_device(l2_server, device_info, task, tmp_rollout_config, reflush_app=True)
     total_time = time.time() - total_start
 
     # 在最后加一行总时间
     print(f"总计执行时间为 {total_time} 秒")
     
+    pass
+    # Enable auto reply
+    # evaluate_task_on_device(l2_server, device_info, task, tmp_rollout_config, reflush_app=True, auto_reply=True)
+
+
+
     pass
