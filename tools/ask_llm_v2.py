@@ -104,6 +104,8 @@ def ask_llm_anything(model_provider, model_name, messages, args= {
     
     result = completion.choices[0].message['content']
 
+    print("llm ask id:", completion['id'])
+
     reasoning = completion.choices[0].message.get("reasoning_content", "")
     if reasoning is not None and len(reasoning) > 0:
         result = "<think>" + reasoning + "</think>" + "\n" + result
