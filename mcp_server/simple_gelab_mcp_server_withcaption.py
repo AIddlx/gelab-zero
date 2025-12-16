@@ -38,25 +38,6 @@ def list_connected_devices() -> list:
     print("Connected devices:", devices)
     return devices
 
-# @mcp.tool
-# def get_device_screenshot(
-#     device_id: Annotated[str, Field(description="ID of the device to capture screenshot from. listed by list_connected_devices tool.")],
-# ) -> MCPImage:
-#     """
-#         Get screenshot from the specified device.
-        
-#         Args:
-#             device_id (str): ID of the device to capture screenshot from.
-        
-#         Returns:
-#             MCPImage: Screenshot image in base64 format.
-#     """
-    
-#     screenshot_b64 = get_screenshot(device_id=device_id)
-#     image_item =  MCPImage(data=screenshot_b64)
-
-#     return image_item
-
 
 @mcp.tool
 def ask_agent_start_new_task(
@@ -272,7 +253,7 @@ if you have
         # enable_intermediate_image_caption=False,
 # 
         enable_intermediate_logs=True,
-        enable_intermediate_image_caption=False,
+        enable_intermediate_image_caption=True,
 
         enable_intermediate_screenshots=False,
 

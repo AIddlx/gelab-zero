@@ -46,28 +46,8 @@ def ask_agent(
 
     task: Annotated[str | None, Field(description="The task that the agent needs to perform on the mobile device. if this is not None, the agent will try to perform this task. if None, the session_id must be provided to continue the previous session.")],
     
-    # reset_environment: Annotated[bool, Field(description="Whether to reset the environment before executing the task, close current app, and back to home screen. If you want to execute a independent task, set this to True will make it easy to execute. If you want to continue the previous session, set this to False.")] = False,
-
     max_steps: Annotated[int, Field(description="Maximum number of steps the agent can take to complete the task.")] = 20,
 
-    # session_id: Annotated[str | None, Field(description="Optional, session ID must provide when the last task endwith INFO action and you want to reply, the session id and device id and the reply from client must be provided.")] = None,
-
-    # When the INFO action is called, how to handle it.
-    # 1. "auto_reply": the INFO action will be handled automatically by calling the caption model to generate image captions.
-    # 2. "no_reply": the INFO action will be ignored. THE AGENT MAY GET STUCK IF THE INFO ACTION IS IGNORED.
-    # 3. "manual_reply": the INFO action will cause an interruption, and the user needs to provide the reply manually by input things in server's console.
-    # 4. "pass_to_client": the INFO action will be returned to the MCP client to handle it. 
-#     reply_mode: Annotated[str, Field(description='''
-#         How to handle the INFO action during task execution.
-        
-#         Options:
-#             - "auto_reply": Automatically generate image captions for INFO actions.
-#             - "no_reply": Ignore INFO actions (may cause the agent to get stuck).
-#             - "manual_reply": Interrupt and require user input for INFO actions.
-#             - "pass_to_client": Pass INFO actions to the MCP client for handling.
-# ''')] = "auto_reply",
-
-    # reply_from_client: Annotated[str | None, Field(description="If the last task is ended with INFO action, and you want to give GUI agent a reply, provide the reply here. If you do so, you must provide last session id and last device id.")] = None,
 ) -> dict:
 
     """
