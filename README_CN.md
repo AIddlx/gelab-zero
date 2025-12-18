@@ -22,7 +22,7 @@
 
 * 🎁 **[2025-12-18]** 我们在 **[arXiv](https://arxiv.org/abs/2512.15431)** 上发布了 **Step-GUI 技术报告**！
 * 🎁 **[2025-12-18]** 我们发布了更强大的 GUI 自动化任务 **API**。[点击此处申请 API 访问权限](https://wvixbzgc0u7.feishu.cn/share/base/form/shrcnNStxEmuE7aY6jTW07CZHMf)！
-* 🎁 **[2025-12-12]** 我们发布了支持多设备管理和任务分发的 **MCP-Server**。请参阅 [安装与快速开始](https://www.google.com/search?q=%23-installation-quick-start) 了解配置说明。
+* 🎁 **[2025-12-12]** 我们发布了支持多设备管理和任务分发的 **MCP-Server**。请参阅 [安装-快速开始](#-安装-快速开始) 和 [MCP-Server 配置](#可选-mcp-server-配置) 了解配置说明。
 * 🎁 **[2025-12-01]** 感谢以下项目和作者提供量化工具及教程：[GGUF_v1](https://huggingface.co/bartowski/stepfun-ai_GELab-Zero-4B-preview-GGUF)、[GGUF_v2](https://huggingface.co/noctrex/GELab-Zero-4B-preview-GGUF)、[EXL3](https://huggingface.co/ArtusDev/stepfun-ai_GELab-Zero-4B-preview-EXL3)、[中文教程](http://xhslink.com/o/1WrmgHGWFYh)、[英文教程](https://www.youtube.com/watch?v=4BMiDyQOpos)。
 * 🎁 **[2025-11-31]** 我们在 **[Hugging Face](https://huggingface.co/stepfun-ai/GELab-Zero-4B-preview)** 和 **[Model Scope](https://modelscope.cn/models/stepfun-ai/GELab-Zero-4B-preview)** 上发布了轻量级 **4B** 模型 GELab-Zero-4B-preview。
 * 🎁 **[2025-11-31]** 我们发布了 **[AndroidDaily](https://huggingface.co/datasets/stepfun-ai/AndroidDaily)** 基准测试中的任务数据。
@@ -32,11 +32,11 @@
 
 ## 📑 目录
 
-- [📖 背景](#-background)
-- [🎥 应用演示](#-application-demonstrations)
-- [🏆 开放基准测试](#-open-benchmark)
-- [🚀 安装 & 快速开始](#-installation-quick-start)
-- [📝 引用](#-citation)
+- [📖 背景](#-背景)
+- [🎥 应用演示](#-应用演示)
+- [🏆 开放基准测试](#-开放基准测试)
+- [🚀 安装-快速开始](#-安装-快速开始)
+- [📝 引用](#-引用)
 
 
 ## 📧 联系我们
@@ -145,7 +145,7 @@
 基准测试结果表明，GELab-Zero-4B-preview 在多个开源基准测试中均表现出优异的性能，特别是在真实的移动场景（Android World）中结果尤为突出，证明了其在实际应用中的强大能力。
 
 
-## 🚀 安装 & 快速开始
+## 🚀 安装-快速开始
 
 端到端推理只需要几个简单的步骤：
 1. 搭建大模型（LLM）推理环境（ollama 或 vllm）
