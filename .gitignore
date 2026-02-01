@@ -1,8 +1,70 @@
-config.yaml
-*/*.pyc
-tmp_screenshot
-output/
-running_log
-gelab-zero-4b-preview/
+# ============================================
+# gelab-zero .gitignore
+# ============================================
 
-model_config.yaml
+# Python 编译缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.venv
+
+# 日志和输出
+*.log
+running_log/*
+output/
+
+# 临时文件和截图
+tmp_screenshot/*
+test_screenshots/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+nul
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 模型权重（太大，不提交）
+gelab-zero-4b-preview/
+*.gguf
+*.safetensors
+
+# 敏感配置（包含 API keys）
+config.yaml
+*.env
+.env
+
+# 内部文档（不暴露到 GitHub）
+docs/
+CLAUDE.md
+ARCHITECTURE.md
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# ============================================
+# 以下文件/目录将保留并提交到 GitHub
+# ============================================
+# - README*.md, QUICKSTART.md, SCRCPY_INTEGRATION.md, MCP_SERVER.md
+# - copilot_agent_client/, copilot_agent_server/, copilot_front_end/
+# - copilot_tools/, examples/, gelab_skill/, gelab-mcp-wrapper/
+# - images/ (README 中使用)
+# - mcp_server/, tools/, visualization/
+# - model_config.yaml, mcp_server_config.yaml (安全配置)
+# - requirements.txt, pyproject.toml
+# - LICENSE, Notice.txt
+# - running_log/.gitkeep, tmp_screenshot/.gitkeep (保留空文件夹)

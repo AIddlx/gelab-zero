@@ -6,7 +6,7 @@ fastapi
 uvicorn
 
 pymongo
-openai==0.28.0
+openai>=1.0.0
 
 pandas
 Pillow
@@ -16,4 +16,6 @@ streamlit
 tqdm
 requests
 
+# MCP 服务器支持
 fastmcp
+mcp

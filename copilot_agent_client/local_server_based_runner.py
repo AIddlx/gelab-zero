@@ -132,7 +132,7 @@ class CopilotClientRolloutRunner:
         
         device_info = {
             "device_id": device_id,
-            "device_wm_size": get_device_wm_size(device_id)
+            "device_wm_size": get_device_wm_size(device_id, show_window=False)  # MCP 模式下不显示窗口
         }
 
         while not self.task_queue[device_id].empty():

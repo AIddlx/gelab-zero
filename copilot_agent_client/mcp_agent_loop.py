@@ -162,18 +162,25 @@ def gui_agent_loop(
         # 2. "no_reply": the INFO action will be ignored. THE AGENT MAY GET STUCK IF THE INFO ACTION IS IGNORED.
         # 3. "manual_reply": the INFO action will cause an interruption, and the user needs to provide the reply manually by input things in server's console.
         # 4. "pass_to_client": the INFO action will be returned to the MCP client to handle it.
-        reply_mode: str = "pass_to_client",  # options: "auto_reply", "pass_to_client", 
+        reply_mode: str = "pass_to_client",  # options: "auto_reply", "pass_to_client",
 
         # task: the task to execute, if None, the session id must be provided, meaning to continue an existing session
         task: str = None,
 
         # if session_id is provided, continue the existing session, happens only when last action in this session is INFO, and need reply from client
-        session_id: str = None, 
+        session_id: str = None,
 
         # optional you can provide extra infomation to pass to the agent and log it
         extra_info: dict = {},
 
         reply_from_client: str = None,
+
+        # optional progress callback function(step, action_info, max_steps) for real-time updates
+        progress_callback = None,
+
+        # optional cancel_event (threading.Event) for task cancellation
+        cancel_event = None,
+
         # agent_server, device_info, task, rollout_config, extra_info = {}, reflush_app=True, auto_reply = False, reset_environment=True
         ):
     """
@@ -189,15 +196,15 @@ def gui_agent_loop(
         enable_intermediate_screenshots = False
 
 
-    device_wm_size = get_device_wm_size(device_id)
+    device_wm_size = get_device_wm_size(device_id, show_window=False)  # MCP 模式下不显示窗口
 
     # init device for the first time
-    open_screen(device_id)
+    open_screen(device_id, show_window=False)
     init_device(device_id)
 
     # if reset_environment, press home key before starting the task
     if reset_environment and session_id is None and task is not None:
-        press_home_key(device_id, print_command=True)
+        press_home_key(device_id, print_command=True, show_window=False)
 
     # task, task_type = task, rollout_config['task_type']
     task_type = agent_loop_config['task_type']
@@ -266,12 +273,18 @@ def gui_agent_loop(
     # restart the steps from 0, even continuing an existing session
     for step_idx in range(max_steps):
 
+        # 检查是否被取消
+        if cancel_event is not None and cancel_event.is_set():
+            print("[取消] 任务被客户端中断")
+            stop_reason = "CANCELLED_BY_CLIENT"
+            break
+
         if not dectect_screen_on(device_id):
             print("Screen is off, turn on the screen first")
             stop_reason = "MANUAL_STOP_SCREEN_OFF"
             break
 
-        image_path = capture_screenshot(device_id, "tmp_screenshot", print_command=False)
+        image_path = capture_screenshot(device_id, "tmp_screenshot", print_command=False, show_window=False)
 
         # current step log use to store intermediate logs if enabled
         current_step_log = {
@@ -330,6 +343,24 @@ def gui_agent_loop(
 
         intermidiate_logs.append(current_step_log)
 
+        # 调用进度回调（如果提供）
+        if progress_callback is not None:
+            print(f"[DEBUG] 调用进度回调: step={global_step_idx}, action_type={action.get('action_type', 'N/A')}")
+            try:
+                progress_callback(global_step_idx, action, max_steps)
+            except RuntimeError as e:
+                if "cancelled" in str(e).lower():
+                    print(f"[取消] 进度回调检测到任务被取消")
+                    stop_reason = "CANCELLED_BY_CLIENT"
+                    break
+                raise
+
+        # 在执行设备操作前再次检查是否被取消
+        if cancel_event is not None and cancel_event.is_set():
+            print("[取消] 在执行设备操作前检测到客户端断开")
+            stop_reason = "CANCELLED_BY_CLIENT"
+            break
+
         # check screen status before acting on device
         if not dectect_screen_on(device_id):
             print("Screen is off, turn on the screen first")
@@ -367,7 +398,7 @@ def gui_agent_loop(
             else:
                 raise ValueError(f"Unknown reply_mode: {reply_mode}")
 
-        act_on_device(action, device_id, device_wm_size, print_command=True, reflush_app=reflush_app)
+        act_on_device(action, device_id, device_wm_size, print_command=True, reflush_app=reflush_app, show_window=False)
 
         history_actions.append(action)
 
@@ -379,7 +410,23 @@ def gui_agent_loop(
             stop_reason = action['action_type'].upper()
             break
 
-        time.sleep(delay_after_capture)
+        # 使用可中断的等待，以便在客户端断开时能及时停止
+        if delay_after_capture > 0:
+            # 检查是否有取消标志
+            if cancel_event is not None:
+                # 每0.1秒检查一次取消标志，直到等待时间结束
+                waited = 0
+                while waited < delay_after_capture:
+                    if cancel_event.is_set():
+                        print("[取消] 等待期间检测到客户端断开")
+                        stop_reason = "CANCELLED_BY_CLIENT"
+                        break
+                    time.sleep(0.1)
+                    waited += 0.1
+                if cancel_event.is_set():
+                    break
+            else:
+                time.sleep(delay_after_capture)
     
     # if intermediate caption is not enabled, but final caption is enabled, caption the final screenshot
     if enable_final_image_caption and not enable_intermediate_image_caption:

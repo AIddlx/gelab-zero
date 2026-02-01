@@ -130,6 +130,12 @@ def execute_task(
 
     # optional you can provide extra infomation to pass to the agent and log it
     extra_info: dict = {},
+
+    # optional progress callback function(step, action_info, max_steps) for real-time updates
+    progress_callback = None,
+
+    # optional cancel_event for task cancellation (threading.Event)
+    cancel_event = None,
 ):
     """
         # GUI Agent Documentation
@@ -180,7 +186,7 @@ def execute_task(
 
 
     # load mcp server config
-    mcp_server_config = yaml.safe_load(smart_open("mcp_server_config.yaml", "r"))
+    mcp_server_config = yaml.safe_load(smart_open("mcp_server_config.yaml", "r", encoding="utf-8"))
     agent_loop_config = mcp_server_config['agent_loop_config']
 
     # determine the actual max_steps
@@ -213,6 +219,8 @@ def execute_task(
         reflush_app=reset_environment,
 
         extra_info=extra_info,
+        progress_callback=progress_callback,
+        cancel_event=cancel_event,
     )
 
 
@@ -307,7 +315,7 @@ if __name__ == "__main__":
     )
     
 
-    with smart_open("tmp_mcp_images.yaml", "w") as f:
+    with smart_open("tmp_mcp_images.yaml", "w", encoding="utf-8") as f:
         yaml.dump(return_log, f, encoding="utf-8", allow_unicode=True)
     
 

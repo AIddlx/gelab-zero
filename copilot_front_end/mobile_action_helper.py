@@ -1,17 +1,37 @@
 import sys
 import os
 import subprocess
+import logging
 
 from uuid import uuid4
 
 if "." not in sys.path:
     sys.path.append(".")
+# 添加 scrcpy-py-ddlx 路径
+# 支持两种目录结构：
+# 1. scrcpy-py-ddlx 与 gelab-zero 平级（GitHub 独立仓库）
+# 2. scrcpy-py-ddlx 在 gelab-zero 内部（开发环境）
+_current_file = os.path.abspath(__file__)
+_gelab_root = os.path.dirname(os.path.dirname(_current_file))
+
+# 尝试平级目录（GitHub 独立仓库模式）
+_scrcpy_path = os.path.join(os.path.dirname(_gelab_root), 'scrcpy-py-ddlx')
+
+# 如果平级目录不存在，尝试内部目录（开发环境）
+if not os.path.exists(_scrcpy_path):
+    _scrcpy_path = os.path.join(_gelab_root, 'scrcpy-py-ddlx')
+
+# 如果找到路径且不在 sys.path 中，则添加
+if os.path.exists(_scrcpy_path) and os.path.basename(_scrcpy_path) not in sys.path:
+    sys.path.insert(0, _scrcpy_path)
 from copilot_front_end.package_map import find_package_name
 
 import time
 from tqdm import tqdm
 
 from megfile import smart_copy
+
+logger = logging.getLogger(__name__)
 
 def _get_adb_command(device_id=None):
     """
@@ -63,17 +83,15 @@ def close_app_on_device(device_id, app_name, print_command = False):
     
     subprocess.run(command, shell=True, capture_output=True, text=True)
 
-def press_home_key(device_id, print_command = False):
+def press_home_key(device_id, print_command=False, show_window=False):
     """
-    Press the home key on the device.
+    Press the home key on the device (using scrcpy-py-ddlx).
     """
-    adb_command = _get_adb_command(device_id)
-    
-    command = f"{adb_command} shell input keyevent 3"
-    if print_command:
-        print(f"Executing command: {command}")
-    
-    subprocess.run(command, shell=True, capture_output=True, text=True)
+    from .scrcpy_connection_manager import get_scrcpy_manager
+    manager = get_scrcpy_manager()
+    client = manager.get_client(device_id, show_window=show_window)
+    if client:
+        client.home()
 
 def init_device(device_id, print_command = False):
     """
@@ -91,15 +109,14 @@ def init_device(device_id, print_command = False):
     if "29a0cd3b3adea92350dd5a25594593df" not in result.stdout:
         # to push yadb into the device
         command = f"{adb_command} push yadb /data/local/tmp"
-        print(f"YADB is not installed on the device. Installing now...")
+        logger.info(f"YADB not installed, installing on device {device_id}...")
 
         if print_command:
-            # print(f"Executing command: {command}")
             print(f"Executing command: {command}")
 
         subprocess.run(command, shell=True, capture_output=True, text=True)
     else:
-        print("yadb is already installed on the device.")
+        logger.debug(f"YADB already installed on device {device_id}")
 
     # press_home_key(device_id, print_command=print_command)
 
@@ -110,7 +127,7 @@ def init_all_devices():
     devices = list_devices()
     for device_id in tqdm(devices):
         init_device(device_id)
-        print(f"Initialized device: {device_id}")
+        logger.debug(f"Initialized device: {device_id}")
 
 def dectect_screen_on(device_id, print_command = False):
     """
@@ -149,32 +166,32 @@ def dectect_screen_on(device_id, print_command = False):
     else:
         return False
 
-def press_power_key(device_id, print_command = False):
+def press_power_key(device_id, print_command=False, show_window=False):
     """
-    Press the power key on the specified device.
+    Press the power key on the specified device (using scrcpy-py-ddlx).
+    Toggles screen on/off.
     """
-    adb_command = _get_adb_command(device_id)
-    
-    command = f"{adb_command} shell input keyevent 26"
-    if print_command:
-        print(f"Executing command: {command}")
-    
-    subprocess.run(command, shell=True, capture_output=True, text=True)
+    from .scrcpy_connection_manager import get_scrcpy_manager
+    manager = get_scrcpy_manager()
+    client = manager.get_client(device_id, show_window=show_window)
+    if client:
+        # 切换电源状态（开/关）
+        client.set_display_power(False)  # 先关
+        time.sleep(0.1)
+        client.set_display_power(True)   # 再开
 
-def swipe_up_to_unlock(device_id, wm_size=(1000,2000), print_command = False):
+def swipe_up_to_unlock(device_id, wm_size=(1000,2000), print_command=False, show_window=False):
     """
-    Swipe up on the specified device to unlock the screen.
+    Swipe up on the specified device to unlock the screen (using scrcpy-py-ddlx).
     """
-    adb_command = _get_adb_command(device_id)
-
-    x = wm_size[0] // 2
-    y_start = int(wm_size[1] * 0.9)
-    y_end = int(wm_size[1] * 0.2)
-
-    command = f"{adb_command} shell input swipe {x} {y_start} {x} {y_end}"
-    if print_command:
-        print(f"Executing command: {command}")
-    subprocess.run(command, shell=True, capture_output=True, text=True)
+    from .scrcpy_connection_manager import get_scrcpy_manager
+    manager = get_scrcpy_manager()
+    client = manager.get_client(device_id, show_window=show_window)
+    if client:
+        x = wm_size[0] // 2
+        y_start = int(wm_size[1] * 0.9)
+        y_end = int(wm_size[1] * 0.2)
+        client.swipe(x, y_start, x, y_end, 300)
 
 def get_manufacturer(device_id):
     """
@@ -186,125 +203,109 @@ def get_manufacturer(device_id):
     manufacturer = result.stdout.strip().lower()
     return manufacturer
 
-def _open_screen(device_id, print_command = False):
+def _open_screen(device_id, print_command=False, show_window=False):
     """
-    Open the screen of the specified device.
+    Open the screen of the specified device (using scrcpy-py-ddlx).
     """
-    
     is_screen_on = dectect_screen_on(device_id, print_command=print_command)
     if is_screen_on:
         if print_command:
             print(f"Screen is already on for device {device_id}.")
         return
-    
-    
-    press_power_key(device_id, print_command=print_command)
-    time.sleep(0.2)
-    maunfacturer = get_manufacturer(device_id)
-    if "vivo" in maunfacturer:
-        # to swipe up to unlock the screen
-        swipe_up_to_unlock(device_id, wm_size=get_device_wm_size(device_id), print_command=print_command)
+
+    from .scrcpy_connection_manager import get_scrcpy_manager
+    manager = get_scrcpy_manager()
+    client = manager.get_client(device_id, show_window=show_window)
+    if client:
+        # 打开屏幕
+        client.turn_screen_on()
         time.sleep(0.2)
+        manufacturer = get_manufacturer(device_id)
+        if "vivo" in manufacturer:
+            # vivo 设备需要上滑解锁
+            size = get_device_wm_size(device_id)
+            x = size[0] // 2
+            y_start = int(size[1] * 0.9)
+            y_end = int(size[1] * 0.2)
+            client.swipe(x, y_start, x, y_end, 300)
+            time.sleep(0.2)
 
         
 
-def open_screen(device_id, print_command = False):
+def open_screen(device_id, print_command=False, show_window=False):
     """
     Open the screen of the specified device.
     """
-    _open_screen(device_id, print_command=print_command)
+    _open_screen(device_id, print_command=print_command, show_window=show_window)
 
 
 def list_devices():
     """
-    List all connected mobile devices.
+    List all connected mobile devices (using scrcpy-py-ddlx).
     """
-    try:
-        result = subprocess.run(['adb', 'devices'], capture_output=True, text=True)
-        devices = result.stdout.splitlines()[1:]
-        devices = [line.split()[0].strip() for line in devices if line.strip() and 'device' in line]
-        return devices
-    except Exception as e:
-        print(f"Error listing devices: {e}")
-        return []
+    from scrcpy_py_ddlx.core.adb import ADBManager
+    adb = ADBManager()
+    devices = adb.list_devices()
+    return [d.serial for d in devices]
 
-def _capture_save_screenshot(device_id, tmp_file_dir="tmp_screenshot", image_name = None, print_command = False):
+def capture_screenshot(device_id, tmp_file_dir="tmp_screenshot", image_name=None, print_command=False, show_window=False):
+    """
+    Capture a screenshot of the specified device and save it to the specified directory (using scrcpy-py-ddlx).
+    """
+    from .scrcpy_connection_manager import get_scrcpy_manager
+    import time
+    import numpy as np
+    from PIL import Image
+
+    # 确保使用绝对路径
+    tmp_file_dir = os.path.abspath(tmp_file_dir)
     if not os.path.exists(tmp_file_dir):
         os.makedirs(tmp_file_dir)
-        print(f"Created temporary directory: {tmp_file_dir}")
-    
-    adb_command = _get_adb_command(device_id)
-    
+
     if image_name is None:
-        screen_shot_pic_name = f"uuid_{uuid4()}.png"
-    
-    screen_shot_pic_path = os.path.join(tmp_file_dir, screen_shot_pic_name)
-    try:
-        # result = subprocess.run([adb_command, 'shell', 'screencap', '-p'], capture_output=True, text=True)
-        command = f"{adb_command} shell screencap -p /sdcard/{screen_shot_pic_name}"
-        if print_command:   
-            print(f"Executing command: {command}")
-        subprocess.run(command, shell=True, capture_output=True, text=True)
+        image_name = f"uuid_{uuid4()}.png"
 
-        # time.sleep(0.2)
+    screen_shot_pic_path = os.path.join(tmp_file_dir, image_name)
 
-        command = f"{adb_command} pull /sdcard/{screen_shot_pic_name} {screen_shot_pic_path}"
-        if print_command:
-            print(f"Executing command: {command}")
-        subprocess.run(command, shell=True, capture_output=True, text=True)
+    manager = get_scrcpy_manager()
+    client = manager.get_client(device_id, show_window=show_window)
+    if client is None:
+        raise RuntimeError(f"无法连接到设备 {device_id}")
 
-        remove_command = f"{adb_command} shell rm /sdcard/{screen_shot_pic_name}"
-        if print_command:
-            print(f"Executing command: {remove_command}")
-        subprocess.run(remove_command, shell=True, capture_output=True, text=True)
+    # 非懒加载模式：需要等待视频流稳定
+    time.sleep(1.0)
 
-        return screen_shot_pic_path
-    except Exception as e:
-        print(f"Error capturing screenshot: {e}")
-        return None
+    # 使用 scrcpy-py-ddlx 截图
+    # 不使用 filename 参数（异步保存），而是获取 numpy 数组手动保存
+    max_retries = 10
+    for attempt in range(max_retries):
+        frame = client.screenshot()  # 返回 numpy 数组或 None
+        if frame is not None:
+            # 手动保存为 PNG（同步）
+            img = Image.fromarray(frame)
+            img.save(screen_shot_pic_path)
+            if os.path.exists(screen_shot_pic_path):
+                return screen_shot_pic_path
 
-def capture_screenshot(device_id, tmp_file_dir="tmp_screenshot", image_name = None, print_command = False):
+        if attempt < max_retries - 1:
+            time.sleep(0.5)
+
+    raise RuntimeError(f"截图失败: 设备 {device_id}")    
+
+def get_device_wm_size(device_id, show_window=True):
     """
-    Capture a screenshot of the specified device and save it to the specified directory.
+    Get the screen size of the specified device (using scrcpy-py-ddlx).
+
+    Args:
+        device_id: Device ID
+        show_window: Whether to show real-time preview window (default: True)
     """
-    screen_shot_pic_path = _capture_save_screenshot(device_id, tmp_file_dir, image_name, print_command)
-    if screen_shot_pic_path is None:
-        raise ValueError(f"Error capturing screenshot for device {device_id}.")
-    
-    return screen_shot_pic_path    
-
-def get_device_wm_size(device_id):
-    """
-    Get the screen size of the specified device.
-    """
-    
-
-    adb_command = _get_adb_command(device_id)
-    try:
-        # result = subprocess.run([adb_command, 'shell', 'wm', 'size'], capture_output=True, text=True)
-        command = f"{adb_command} shell wm size"
-
-        # print(f"Getting device {device_id} wm size with command: {command}")
-
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
-
-        result_str = result.stdout.strip()
-        
-        assert "Physical size:" in result_str or "Override size:" in result_str, f"Unexpected wm size output: {result_str}"
-
-        if "override size" in result_str.lower():
-            size = result_str.split('Override size:')[1].strip()
-        else:
-            size = result_str.split('Physical size:')[1].strip()
-
-        size = size.split('x')
-        if "\n" in size[1]:
-            size[1] = size[1].split("\n")[0]
-        size = (int(size[0]), int(size[1]))
-        return size
-    except Exception as e:
-        print(f"Error getting device size: {e}")
-        return None
+    from .scrcpy_connection_manager import get_scrcpy_manager
+    manager = get_scrcpy_manager()
+    size = manager.get_device_size(device_id, show_window=show_window)
+    if size is None:
+        raise RuntimeError(f"无法获取设备 {device_id} 的屏幕尺寸")
+    return size
 
 # convert model action from api to a front-end action
 def model_act2front_act(act, wm_size):
@@ -511,111 +512,85 @@ def normlize_point(point, wm_size):
     return real_world_point
 
 
-def act_on_device(device_id, action, print_command = False, refush_app = True, device_wm_size = None):
+def act_on_device(device_id, action, print_command=False, refush_app=True, device_wm_size=None):
     """
-    Perform an action on a specific device.
+    Perform an action on a specific device (using scrcpy-py-ddlx).
     """
-    adb_command = _get_adb_command(device_id)
+    from .scrcpy_connection_manager import get_scrcpy_manager
 
-    if action['action_type'] == "Click":
+    manager = get_scrcpy_manager()
+    client = manager.get_client(device_id, show_window=show_window)
+    if client is None:
+        raise RuntimeError(f"无法连接到设备 {device_id}")
 
+    action_type = action['action_type']
+
+    if action_type == "Click":
         if device_wm_size is None:
             real_point = action['args']['point']
         else:
             normalized_point = action['args']['normalized_point']
             real_point = (int(normalized_point[0] * device_wm_size[0]), int(normalized_point[1] * device_wm_size[1]))
-        adb_command += f" shell input tap {real_point[0]} {real_point[1]}"
+        client.tap(real_point[0], real_point[1])
 
-    
-        # print(f"Executing command: {adb_command}")
-    elif action['action_type'] == "Awake":
+    elif action_type == "Awake":
         app_name = action['args']['text']
-
         package_name = find_package_name(app_name)
-        
         if package_name is None:
             raise ValueError(f"App {app_name} not found in package map.")
-        # adb shell monkey -p com.sankuai.meituan -c android.intent.category.LAUNCHER 1
 
-        if refush_app:
-            refush_command = f"{adb_command} shell am force-stop {package_name}"
-            if print_command:
-                print(f"Executing command: {refush_command}")
-            subprocess.run(refush_command, shell=True, capture_output=True, text=True)
-
-        # else:
-        adb_command = f"{adb_command} shell monkey -p {package_name} -c android.intent.category.LAUNCHER 1"
+        # scrcpy-py-ddlx 启动应用
+        client.start_app(package_name)
         time.sleep(2)
 
-        # adb_command += f" shell monkey -p {package_name} -c android.intent.category.LAUNCHER 1"
-
-    elif action['action_type'] == "Type":
+    elif action_type == "Type":
         text = action['args']['text']
-        # adb_command += f" shell input text '{text}'"
-        # adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -keyboard 你好，世界
 
-        if device_wm_size is None:
-            point = action['args']['point']
-        else:
-            normalized_point = action['args']['normalized_point']
-            point = (int(normalized_point[0] * device_wm_size[0]), int(normalized_point[1] * device_wm_size[1]))
-            
+        # 如果需要点击输入框
         if "keyboard_exists" in action['args'] and not action['args']['keyboard_exists']:
-            click_commmand = f"{adb_command} shell input tap {point[0]} {point[1]}"
-            subprocess.run(click_commmand, shell=True, capture_output=True, text=True)
+            if device_wm_size is None:
+                point = action['args']['point']
+            else:
+                normalized_point = action['args']['normalized_point']
+                point = (int(normalized_point[0] * device_wm_size[0]), int(normalized_point[1] * device_wm_size[1]))
+            client.tap(point[0], point[1])
+            time.sleep(0.3)
 
+        # scrcpy-py-ddlx 输入文本（支持中文）
+        client.inject_text(text)
 
-        adb_command += f' shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -keyboard "{text}"'
+    elif action_type == "Pop":
+        client.back()
 
-    elif action['action_type'] == "Pop":
-        pass
-
-    elif action['action_type'] == "Wait":
+    elif action_type == "Wait":
         wait_time = action['args']['duration']
         time.sleep(float(wait_time))
-
         return
-    
-    elif action['action_type'] == "Scroll":
-        path = action['args']['path']
 
-        if device_wm_size is not None:  
+    elif action_type == "Scroll":
+        path = action['args']['path']
+        if device_wm_size is not None:
             normalized_path = action['args']['normalized_path']
             path = [(int(normalized_path[0][0] * device_wm_size[0]), int(normalized_path[0][1] * device_wm_size[1])),
                     (int(normalized_path[1][0] * device_wm_size[0]), int(normalized_path[1][1] * device_wm_size[1]))]
+        client.swipe(path[0][0], path[0][1], path[1][0], path[1][1], 1000)
 
-        adb_command += f" shell input swipe {path[0][0]} {path[0][1]} {path[1][0]} {path[1][1]} 1000"
-
-    elif action['action_type'] == "LongPress":
-        # adb shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -touch 500 500 2000
-
+    elif action_type == "LongPress":
         if device_wm_size is None:
             point = action['args']['point']
         else:
             normalized_point = action['args']['normalized_point']
             point = (int(normalized_point[0] * device_wm_size[0]), int(normalized_point[1] * device_wm_size[1]))
+        client.long_press(point[0], point[1], 2000)
 
-        adb_command += f" shell app_process -Djava.class.path=/data/local/tmp/yadb /data/local/tmp com.ysbing.yadb.Main -touch {point[0]} {point[1]} 2000"
-
-    elif action['action_type'] == "Abort":
-
+    elif action_type == "Abort":
         pass
 
-    elif action['action_type'] == "Complete":
-
+    elif action_type == "Complete":
         pass
-
 
     else:
-        raise ValueError(f"Invalid action type: {action['action_type']}")
-
-    if print_command:
-        print(f"Executing command: {adb_command}")
-
-    result = subprocess.run(adb_command, shell=True, capture_output=True, text=True)
-
-    if print_command:
-        print(f"Command output: {result.stdout}")
+        raise ValueError(f"Invalid action type: {action_type}")
 
 
 def default_reply_method(task, envs, actions, question):
@@ -693,11 +668,11 @@ class BaseMoboleActionHelper:
         # to get the observation
         for i in range(3):
             try:
-                screen_shot_pic_path = _capture_save_screenshot(self.device_id, tmp_file_dir="tmp_screenshot", print_command=True)
+                screen_shot_pic_path = capture_screenshot(self.device_id, tmp_file_dir="tmp_screenshot")
                 is_screenshot = True
                 break
             except Exception as e:
-                print(f"Error capturing screenshot: {e}")
+                logger.warning(f"Screenshot attempt {i+1}/3 failed: {e}")
                 time.sleep(0.5)
 
 
@@ -725,9 +700,35 @@ class BaseMoboleActionHelper:
 
     
 
-if __name__ == "__main__":
 
-    print(get_device_wm_size("bc23727a"))
-    
-    open_screen(None, print_command=True)
+# ============================================================
+# 模块导出
+# ============================================================
+
+__all__ = [
+    # 设备管理
+    "list_devices",
+    "get_device_wm_size",
+    "get_manufacturer",
+    # 屏幕控制
+    "open_screen",
+    "dectect_screen_on",
+    # 动作执行
+    "act_on_device",
+    "press_home_key",
+    "press_power_key",
+    "swipe_up_to_unlock",
+    # 应用管理
+    "close_app_on_device",
+    # 截图
+    "capture_screenshot",
+    # 辅助函数
+    "model_act2front_act",
+    "normlize_point",
+    # 类
+    "BaseMoboleActionHelper",
+]
+
+
+if __name__ == "__main__":
     pass

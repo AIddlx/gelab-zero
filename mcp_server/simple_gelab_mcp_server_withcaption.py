@@ -274,7 +274,7 @@ if you have
     return return_log
 
 
-with open("mcp_server_config.yaml", "r") as f:
+with open("mcp_server_config.yaml", "r", encoding="utf-8") as f:
     mcp_server_config = yaml.safe_load(f)
 
 mcp.run(transport="http", port=mcp_server_config['server_config'].get("mcp_server_port", 8702))

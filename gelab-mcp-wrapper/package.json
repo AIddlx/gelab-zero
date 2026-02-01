@@ -1,0 +1,12 @@
+{
+  "name": "gelab-mcp-server",
+  "version": "1.0.0",
+  "description": "GELab MCP Server - Python GUI Agent for Mobile Devices",
+  "bin": {
+    "gelab-mcp-server": "index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["mcp", "gui-agent", "mobile", "automation"]
+}

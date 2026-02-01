@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 
 if "." not in sys.path:
     sys.path.append(".")
@@ -21,6 +22,38 @@ from megfile import smart_remove
 import time
 
 from tools.ask_llm_v2 import ask_llm_anything
+
+# 获取日志记录器
+logger = logging.getLogger(__name__)
+
+
+def _clean_base64_simple(messages):
+    """简化版本：只显示摘要，不替换为文件路径"""
+    if isinstance(messages, dict):
+        cleaned = {}
+        for k, v in messages.items():
+            cleaned[k] = _clean_base64_simple(v)
+        return cleaned
+    elif isinstance(messages, list):
+        cleaned = []
+        for item in messages:
+            cleaned.append(_clean_base64_simple(item))
+        return cleaned
+    elif isinstance(messages, str):
+        if messages.startswith("data:image/"):
+            try:
+                if "," in messages:
+                    prefix = messages.split(",")[0]
+                    img_type = prefix.split("/")[1].split(";")[0]
+                    b64_data = messages.split(",", 1)[1]
+                    size_kb = len(b64_data) * 3 / 4 / 1024
+                    return f"[BASE64_IMAGE: type={img_type}, size≈{size_kb:.1f}KB]"
+            except:
+                return f"[BASE64_IMAGE: length={len(messages)}]"
+        return messages
+    else:
+        return messages
+
 
 def reply_info_action(current_image_url, task, info_action, model_provider, model_name):
     """
@@ -91,15 +124,16 @@ def evaluate_task_on_device(agent_server, device_info, task, rollout_config, ext
     Evaluate a task on a device using the provided frontend action converter and action function.
 
     """
+    logger.debug("evaluate_task_on_device 开始")
+    logger.debug(f"任务: {task}, 设备: {device_info['device_id']}")
 
     # init device for the first time
     device_id = device_info['device_id']
     open_screen(device_id)
     init_device(device_id)
 
-
     if reset_environment:
-        press_home_key(device_id, print_command=True)
+        press_home_key(device_id, print_command=False)
 
     task, task_type = task, rollout_config['task_type']
 
@@ -108,10 +142,8 @@ def evaluate_task_on_device(agent_server, device_info, task, rollout_config, ext
         "task_type": task_type,
         "model_config": rollout_config['model_config'],
         "extra_info": extra_info
-        
     })
-
-    print(f"Session ID: {session_id}")
+    logger.debug(f"Session ID: {session_id}")
 
     return_log = {
         "session_id": session_id,
@@ -129,16 +161,19 @@ def evaluate_task_on_device(agent_server, device_info, task, rollout_config, ext
     history_actions = []
 
     for step_idx in range(max_steps):
+        logger.debug(f"Step {step_idx + 1}/{max_steps} 开始")
 
         if not dectect_screen_on(device_id):
-            print("Screen is off, turn on the screen first")
+            logger.warning("屏幕关闭，退出循环")
             break
 
+        logger.debug("正在捕获设备截图...")
         image_path = capture_screenshot(device_id, "tmp_screenshot", print_command=False)
+        logger.debug(f"截图已保存: {image_path}")
 
         image_b64_url = make_b64_url(image_path, resize_config=rollout_config['model_config'].get("resize_config", None))
         smart_remove(image_path)
-        
+
         payload = {
             "session_id": session_id,
             "observation": {
@@ -150,43 +185,33 @@ def evaluate_task_on_device(agent_server, device_info, task, rollout_config, ext
                 },
             }
         }
+
         if history_actions[-1]['action_type'] == "INFO" if len(history_actions) > 0 else False:
             info_action = history_actions[-1]
+            logger.debug(f"INFO 动作，需要回复: {info_action}")
 
             if auto_reply:
-                print(f"AUTO REPLY INFO FROM MODEL!")
                 reply_info = reply_info_action(image_b64_url, task, info_action, model_provider=rollout_config['model_config']['model_provider'], model_name=rollout_config['model_config']['model_name'])
-                print(f"info: {reply_info}")
-            
+                logger.debug(f"自动回复: {reply_info}")
             else:
-                print(f"EN: Agent asks: {history_actions[-1]['value']} Please Reply: ")
-                print(f"ZH: Agent 问你: {history_actions[-1]['value']} 回复一下：")
-
-                reply_info = input("Your reply:")
-
-            print(f"Replied info action: {reply_info}")
+                print(f"\n[Agent 询问] {info_action.get('value', '')}")
+                reply_info = input("请回复: ")
+                logger.debug(f"用户回复: {reply_info}")
 
             payload['observation']['query'] = reply_info
 
-
         action = agent_server.automate_step(payload)['action']
-
-        #TODO: to replace with the new function
         action = uiTars_to_frontend_action(action)
-
-        act_on_device(action, device_id, device_wm_size, print_command=True, reflush_app=reflush_app)
-
+        act_on_device(action, device_id, device_wm_size, print_command=False, reflush_app=reflush_app)
         history_actions.append(action)
-
-
-        print(f"Step {step_idx+1}/{max_steps} done. Action: {action}")
+        logger.debug(f"Step {step_idx+1} 完成. Action: {action.get('action_type', 'UNKNOWN')}")
 
         if action['action_type'].upper() in ['COMPLETE', "ABORT"]:
-            stop_reason = action['action_type'].upper()
+            logger.info(f"检测到终止动作: {action['action_type']}")
             break
 
         time.sleep(delay_after_capture)
-    
+
     if action['action_type'] in ['COMPLETE', "ABORT"]:
         stop_reason = action['action_type']
     elif step_idx == max_steps - 1:
@@ -194,13 +219,10 @@ def evaluate_task_on_device(agent_server, device_info, task, rollout_config, ext
     else:
         stop_reason = "MANUAL_STOP"
 
-    # return_log['session_id'] = session_id
     return_log['stop_reason'] = stop_reason
-
     return_log['stop_steps'] = step_idx + 1
 
-    print(f"Task {task} done in {len(history_actions)} steps. Session ID: {session_id}")
-
+    logger.info(f"任务完成 - 步数: {len(history_actions)}, 原因: {stop_reason}")
     return return_log
 
 

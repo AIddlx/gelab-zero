@@ -24,8 +24,8 @@
 * 🎁 **[2025-12-18]** 我们发布了更强大的 GUI 自动化任务 **API**。[点击此处申请 API 访问权限](https://wvixbzgc0u7.feishu.cn/share/base/form/shrcnNStxEmuE7aY6jTW07CZHMf)！
 * 🎁 **[2025-12-12]** 我们发布了支持多设备管理和任务分发的 **MCP-Server**。请参阅 [安装-快速开始](#-安装-快速开始) 和 [MCP-Server 配置](#可选-mcp-server-配置) 了解配置说明。
 * 🎁 **[2025-12-01]** 感谢以下项目和作者提供量化工具及教程：[GGUF_v1](https://huggingface.co/bartowski/stepfun-ai_GELab-Zero-4B-preview-GGUF)、[GGUF_v2](https://huggingface.co/noctrex/GELab-Zero-4B-preview-GGUF)、[EXL3](https://huggingface.co/ArtusDev/stepfun-ai_GELab-Zero-4B-preview-EXL3)、[中文教程](http://xhslink.com/o/1WrmgHGWFYh)、[英文教程](https://www.youtube.com/watch?v=4BMiDyQOpos)。
-* 🎁 **[2025-11-31]** 我们在 **[Hugging Face](https://huggingface.co/stepfun-ai/GELab-Zero-4B-preview)** 和 **[Model Scope](https://modelscope.cn/models/stepfun-ai/GELab-Zero-4B-preview)** 上发布了轻量级 **4B** 模型 GELab-Zero-4B-preview。
-* 🎁 **[2025-11-31]** 我们发布了 **[AndroidDaily](https://huggingface.co/datasets/stepfun-ai/AndroidDaily)** 基准测试中的任务数据。
+* 🎁 **[2025-11-30]** 我们在 **[Hugging Face](https://huggingface.co/stepfun-ai/GELab-Zero-4B-preview)** 和 **[Model Scope](https://modelscope.cn/models/stepfun-ai/GELab-Zero-4B-preview)** 上发布了轻量级 **4B** 模型 GELab-Zero-4B-preview。
+* 🎁 **[2025-11-30]** 我们发布了 **[AndroidDaily](https://huggingface.co/datasets/stepfun-ai/AndroidDaily)** 基准测试中的任务数据。
 * 🎁 **[2025-11-30]** 我们发布了当前的 **GELab-Zero** 工程基础设施。
 * 🎁 **[2025-10]** 我们关于 GELab-Engine 的 **[研究论文](https://github.com/summoneryhl/gelab-engine)** 被 **NeurIPS 2025** 录用。
 

@@ -208,7 +208,11 @@ class Parser0920Summary():
             return_action.update({
                 "point": point
             })
-        
+
+        # 系统级控制动作（不需要额外参数）
+        elif action_type in ["HOME", "BACK", "MENU", "ENTER", "VOLUME_UP", "VOLUME_DOWN"]:
+            pass
+
         else:
             raise ValueError(f"Unknown action type {action_type} in action {action}")
 

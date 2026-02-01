@@ -22,12 +22,41 @@
 * 🎁 **[2025-12-18]** We release a more powerful **API** for GUI automation tasks. [Apply for API access here](https://wvixbzgc0u7.feishu.cn/share/base/form/shrcnNStxEmuE7aY6jTW07CZHMf)!
 * 🎁 **[2025-12-12]** We release **MCP-Server** support for multi-device management and task distribution. See [Installation & Quick Start](#-installation-quick-start) and [MCP-Server Setup](#optional-mcp-server-setup) for setup instructions.
 * 🎁 **[2025-12-1]** We thank the following projects and authors for providing quantization tools & tutorials: [GGUF_v1](https://huggingface.co/bartowski/stepfun-ai_GELab-Zero-4B-preview-GGUF), [GGUF_v2](https://huggingface.co/noctrex/GELab-Zero-4B-preview-GGUF), [EXL3](https://huggingface.co/ArtusDev/stepfun-ai_GELab-Zero-4B-preview-EXL3), [Tutorials_CN](http://xhslink.com/o/1WrmgHGWFYh), [Tutorials_EN](https://www.youtube.com/watch?v=4BMiDyQOpos)
-* 🎁 **[2025-11-31]** We release a lightweight **4B** model GELab-Zero-4B-preview on [**Hugging Face**](https://huggingface.co/stepfun-ai/GELab-Zero-4B-preview) and [**Model Scope**](https://modelscope.cn/models/stepfun-ai/GELab-Zero-4B-preview).
-* 🎁 **[2025-11-31]** We release the tasks from the [**AndroidDaily**](https://huggingface.co/datasets/stepfun-ai/AndroidDaily) benchmark.
+* 🎁 **[2025-11-30]** We release a lightweight **4B** model GELab-Zero-4B-preview on [**Hugging Face**](https://huggingface.co/stepfun-ai/GELab-Zero-4B-preview) and [**Model Scope**](https://modelscope.cn/models/stepfun-ai/GELab-Zero-4B-preview).
+* 🎁 **[2025-11-30]** We release the tasks from the [**AndroidDaily**](https://huggingface.co/datasets/stepfun-ai/AndroidDaily) benchmark.
 * 🎁 **[2025-11-30]** We release the current **GELab-Zero** engineering infrastructure.
 * 🎁 **[2025-10]** Our [**research**](https://github.com/summoneryhl/gelab-engine) paper on GELab-Engine is accepted by **NeurIPS 2025**.
 
+---
 
+## 🔧 This Version (AIddlx Fork)
+
+This fork includes several enhancements over the original repository:
+
+### Device Control Improvements
+- **scrcpy Integration**: Replaced ADB with [scrcpy-py-ddlx](https://github.com/AIddlx/scrcpy_py_ddlx) for device control
+  - **5-10x faster** action execution
+  - **25x faster** screenshot capture (~20ms vs ~500ms)
+  - Native Chinese text input support
+  - Real-time video streaming preview window
+  - See [SCRCPY_INTEGRATION.md](SCRCPY_INTEGRATION.md)
+
+### Connection Management
+- **Auto wireless ADB**: Automatically enables wireless mode when USB device detected
+- **LAN discovery**: Automatically scans and connects to devices on local network
+- **Dual-link mode**: Seamlessly switches between USB and wireless connections
+
+### New Features
+- **Interactive mode**: `run_interactive.py` for continuous conversation with the agent
+- **HTTP MCP server**: Remote MCP support via HTTP protocol
+- **stdio wrapper**: Local MCP integration for Claude Code and similar tools
+
+### Documentation
+- [QUICKSTART.md](QUICKSTART.md) - 5-minute quick start guide
+- [SCRCPY_INTEGRATION.md](SCRCPY_INTEGRATION.md) - scrcpy integration details
+- [MCP_SERVER.md](MCP_SERVER.md) - MCP server usage
+
+---
 
 ## 📑 Table of Contents
 
