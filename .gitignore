@@ -20,9 +20,19 @@ env/
 running_log/*
 output/
 
+# 保留文件夹结构
+!running_log/.gitkeep
+!running_log/*/.gitkeep
+!running_log/*/*/.gitkeep
+!running_log/*/*/*/.gitkeep
+!running_log/*/*/*/*/.gitkeep
+
 # 临时文件和截图
 tmp_screenshot/*
 test_screenshots/
+
+# 保留文件夹结构
+!tmp_screenshot/.gitkeep
 *.tmp
 *.temp
 *.bak
