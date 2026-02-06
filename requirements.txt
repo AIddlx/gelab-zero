@@ -1,21 +1,19 @@
+# Core dependencies
 megfile
 opencv-python
 jsonlines
 pydantic
 fastapi
-uvicorn
-
+uvicorn[standard]
 pymongo
 openai>=1.0.0
-
 pandas
 Pillow
 openpyxl
-
 streamlit
 tqdm
 requests
 
-# MCP 服务器支持
+# MCP server support
 fastmcp
 mcp
