@@ -57,7 +57,9 @@ config.yaml
 .env
 
 # 内部文档（不暴露到 GitHub）
-docs/
+# 保留 docs/ 目录下的 .md 文档
+docs/*
+!docs/*.md
 CLAUDE.md
 ARCHITECTURE.md
 
