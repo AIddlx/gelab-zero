@@ -70,7 +70,15 @@ ddlx/
 
 ## 步骤 2: 安装依赖
 
+**确保已在虚拟环境内**（命令行前有 `(venv)` 提示符）。
+
 ```bash
+# 安装 scrcpy-py-ddlx 依赖
+cd ddlx/scrcpy-py-ddlx
+pip install -r requirements.txt
+
+# 安装 gelab-zero 依赖
+cd ../gelab-zero
 pip install -r requirements.txt
 ```
 
