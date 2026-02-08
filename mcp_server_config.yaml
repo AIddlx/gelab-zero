@@ -82,7 +82,12 @@ agent_loop_config: {
 }
 
 server_config : {
+    # 详细 MCP 服务器端口（完整任务执行）
     "mcp_server_port": 8704,
+
+    # 单步动作 MCP 服务器端口（阶跃桌面助手使用）
+    "single_action_mcp_port": 8705,
+
     "log_dir": "running_log/server_log/os-copilot-local-eval-logs/traces",
     "image_dir": "running_log/server_log/os-copilot-local-eval-logs/images",
     "debug": False,

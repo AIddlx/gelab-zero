@@ -7,22 +7,12 @@ from uuid import uuid4
 
 if "." not in sys.path:
     sys.path.append(".")
-# 添加 scrcpy-py-ddlx 路径
-# 支持两种目录结构：
-# 1. scrcpy-py-ddlx 与 gelab-zero 平级（GitHub 独立仓库）
-# 2. scrcpy-py-ddlx 在 gelab-zero 内部（开发环境）
+# 添加 scrcpy-py-ddlx 路径（与 gelab-zero 平级）
 _current_file = os.path.abspath(__file__)
 _gelab_root = os.path.dirname(os.path.dirname(_current_file))
-
-# 尝试平级目录（GitHub 独立仓库模式）
 _scrcpy_path = os.path.join(os.path.dirname(_gelab_root), 'scrcpy-py-ddlx')
 
-# 如果平级目录不存在，尝试内部目录（开发环境）
-if not os.path.exists(_scrcpy_path):
-    _scrcpy_path = os.path.join(_gelab_root, 'scrcpy-py-ddlx')
-
-# 如果找到路径且不在 sys.path 中，则添加
-if os.path.exists(_scrcpy_path) and os.path.basename(_scrcpy_path) not in sys.path:
+if os.path.exists(_scrcpy_path) and _scrcpy_path not in sys.path:
     sys.path.insert(0, _scrcpy_path)
 from copilot_front_end.package_map import find_package_name
 

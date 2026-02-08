@@ -116,15 +116,6 @@ hf download stepfun-ai/GELab-Zero-4B-preview --local-dir gelab-zero-4b-preview
 
 详细安装方法和更多部署方式（vllm、llama.cpp）请参考：[README_CN.md](../README_CN.md#step-1-大模型推理环境搭建)
 
-```bash
-cd gelab-zero-4b-preview
-
-# 导入 Ollama
-ollama create gelab-zero-4b-preview -f Modelfile
-
-# 启动模型服务（必须）
-ollama run gelab-zero-4b-preview
-```
 
 确保 Ollama 模型服务正常运行后，再进行后续步骤。
 
@@ -147,6 +138,8 @@ python mcp_server/detailed_gelab_mcp_server.py
 ```
 
 服务器运行在 `http://localhost:8704`，可在 Chatbox 或 Claude Code 中配置使用。
+
+MCP 功能并不稳定 不建议在阶跃桌面助手中使用
 
 ---
 
