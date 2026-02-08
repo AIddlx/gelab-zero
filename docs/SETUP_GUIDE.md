@@ -114,7 +114,7 @@ hf download stepfun-ai/GELab-Zero-4B-preview --local-dir gelab-zero-4b-preview
 
 本指南使用 **Ollama** 方式部署模型。
 
-其他部署方式（vllm、llama.cpp）请参考：[QUICKSTART.md](docs/QUICKSTART.md)
+详细安装方法和更多部署方式（vllm、llama.cpp）请参考：[README_CN.md](../README_CN.md#step-1-大模型推理环境搭建)
 
 ```bash
 cd gelab-zero-4b-preview
