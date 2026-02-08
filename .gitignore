@@ -63,6 +63,9 @@ docs/*
 CLAUDE.md
 ARCHITECTURE.md
 
+# Claude Code 配置（不暴露到 GitHub）
+.claude/
+
 # IDE
 .vscode/
 .idea/

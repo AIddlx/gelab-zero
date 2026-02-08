@@ -16,6 +16,9 @@
 # 创建 ddlx 目录
 mkdir ddlx
 
+# 先进入 ddlx 工作目录（或创建后进入）
+cd ddlx
+
 # 创建虚拟环境
 python -m venv ddlx/venv
 
@@ -45,8 +48,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **注意**: gelab-zero 依赖于 scrcpy-py-ddlx，两个项目必须放在**同级目录**。
 
 ```bash
-# 先进入 ddlx 工作目录（或创建后进入）
-cd ddlx
+
 
 # 克隆 scrcpy-py-ddlx（必需依赖）
 git clone https://github.com/AIddlx/scrcpy-py-ddlx
@@ -54,8 +56,6 @@ git clone https://github.com/AIddlx/scrcpy-py-ddlx
 # 克隆 gelab-zero（主项目）
 git clone https://github.com/AIddlx/gelab-zero
 
-# 进入 gelab-zero 目录
-cd gelab-zero
 ```
 
 **目录结构要求**:
