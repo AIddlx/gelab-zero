@@ -52,9 +52,9 @@ This fork includes several enhancements over the original repository:
 - **stdio wrapper**: Local MCP integration for Claude Code and similar tools
 
 ### Documentation
-- [QUICKSTART.md](QUICKSTART.md) - 5-minute quick start guide
+- [QUICKSTART.md](docs/QUICKSTART.md) - 5-minute quick start guide
 - [SCRCPY_INTEGRATION.md](SCRCPY_INTEGRATION.md) - scrcpy integration details
-- [MCP_SERVER.md](MCP_SERVER.md) - MCP server usage
+- [MCP_SERVER.md](docs/MCP_SERVER.md) - MCP server usage
 
 ---
 
