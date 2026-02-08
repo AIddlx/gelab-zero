@@ -45,6 +45,9 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 **注意**: gelab-zero 依赖于 scrcpy-py-ddlx，两个项目必须放在**同级目录**。
 
 ```bash
+# 先进入 ddlx 工作目录（或创建后进入）
+cd ddlx
+
 # 克隆 scrcpy-py-ddlx（必需依赖）
 git clone https://github.com/AIddlx/scrcpy-py-ddlx
 
@@ -57,9 +60,10 @@ cd gelab-zero
 
 **目录结构要求**:
 ```
-C:\Project\IDEA\2\
-├── scrcpy-py-ddlx/          # 必需！与 gelab-zero 同级
-└── gelab-zero/              # 主项目
+ddlx/
+├── venv/                     # 虚拟环境（步骤 0 创建）
+├── scrcpy-py-ddlx/           # 必需！与 gelab-zero 同级
+└── gelab-zero/               # 主项目
 ```
 
 ---
@@ -149,20 +153,3 @@ python mcp_server/detailed_gelab_mcp_server.py
 | 截图 | `running_log/server_log/os-copilot-local-eval-logs/images/` |
 
 ---
-
-## 项目目录结构
-
-```
-ddlx/                         # 工作目录
-├── venv/                     # 虚拟环境
-├── gelab-zero/               # 主项目
-│   └── docs/
-│       ├── SETUP_GUIDE.md    # 本文档
-│       ├── QUICKSTART.md     # 快速开始指南
-│       ├── MCP_SERVER.md     # MCP 服务器文档
-│       ├── ACTION_EXECUTION_GUIDE.md
-│       ├── GET_DEVICE_IP_METHODS.md
-│       └── USAGE.md
-├── scrcpy-py-ddlx/           # scrcpy 客户端
-└── gelab-zero-4b-preview/    # 模型文件
-```
