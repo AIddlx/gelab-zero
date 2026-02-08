@@ -153,17 +153,16 @@ python mcp_server/detailed_gelab_mcp_server.py
 ## 项目目录结构
 
 ```
-C:\Project\IDEA\2\
-├── ddlx/                    # 共享虚拟环境目录
-│   └── venv/
-├── gelab-zero/              # 主项目
+ddlx/                         # 工作目录
+├── venv/                     # 虚拟环境
+├── gelab-zero/               # 主项目
 │   └── docs/
-│       ├── SETUP_GUIDE.md   # 本文档
-│       ├── QUICKSTART.md    # 快速开始指南
-│       ├── MCP_SERVER.md    # MCP 服务器文档
+│       ├── SETUP_GUIDE.md    # 本文档
+│       ├── QUICKSTART.md     # 快速开始指南
+│       ├── MCP_SERVER.md     # MCP 服务器文档
 │       ├── ACTION_EXECUTION_GUIDE.md
 │       ├── GET_DEVICE_IP_METHODS.md
 │       └── USAGE.md
-├── scrcpy-py-ddlx/          # scrcpy 客户端
-└── gelab-zero-4b-preview/   # 模型文件
+├── scrcpy-py-ddlx/           # scrcpy 客户端
+└── gelab-zero-4b-preview/    # 模型文件
 ```
