@@ -35,38 +35,49 @@ python examples/run_single_task.py "打开淘宝，搜索 iPhone，按销量排�
 ## 前置要求（使用前请确保已完成安装）
 
 ### 必须已安装并运行：
-1. **虚拟环境**：已创建并激活
+1. **虚拟环境**：已创建
 2. **依赖包**：已在虚拟环境中安装
 3. **Ollama 模型**：已下载并运行 `ollama run gelab-zero-4b-preview`
 4. **Android 设备**：已启用 USB 调试并连接
 
-### 在虚拟环境中启动：
+### 执行脚本的方式：
 
-**Windows PowerShell:**
+**方式1：直接使用虚拟环境 Python（AI/自动化推荐）**
+
+这种方式不依赖虚拟环境激活，最可靠：
+
+Windows PowerShell:
 ```powershell
-# 激活虚拟环境
-ddlx\venv\Scripts\Activate.ps1
-
-# 进入项目目录
-cd gelab-zero
-
-# 执行任务
-python examples/run_single_task.py "任务描述"
+Set-Location "C:\Project\IDEA\2\ddlx\gelab-zero"
+& "C:\Project\IDEA\2\ddlx\venv\Scripts\python.exe" "examples\run_single_task.py" "任务描述"
 ```
 
-**Windows CMD:**
-```
-ddlx\venv\Scripts\activate.bat
-cd gelab-zero
-python examples/run_single_task.py "任务描述"
-```
-
-**Linux/Mac:**
+Linux/Mac:
 ```bash
-source ddlx/venv/bin/activate
-cd gelab-zero
-python examples/run_single_task.py "任务描述"
+cd /path/to/ddlx/gelab-zero
+/path/to/ddlx/venv/bin/python examples/run_single_task.py "任务描述"
 ```
+
+**方式2：激活虚拟环境后执行（手动操作）**
+
+Windows PowerShell（注意使用 `.` 而不是 `&`）:
+```powershell
+. "C:\Project\IDEA\2\ddlx\venv\Scripts\Activate.ps1"
+cd C:\Project\IDEA\2\ddlx\gelab-zero
+python examples\run_single_task.py "任务描述"
+```
+
+Windows CMD:
+```cmd
+C:\Project\IDEA\2\ddlx\venv\Scripts\activate.bat
+cd C:\Project\IDEA\2\ddlx\gelab-zero
+python examples\run_single_task.py "任务描述"
+```
+
+**重要提示：**
+- PowerShell 中必须用 `. "...\Activate.ps1"`（dot source），不能用 `&`
+- CMD 中使用 `activate.bat`
+- 如果移动过项目目录，需要重建虚拟环境，详见 [虚拟环境故障排查](../docs/VENV_TROUBLESHOOTING.md)
 
 首次安装请参考：[SETUP_GUIDE.md](../docs/SETUP_GUIDE.md)
 
